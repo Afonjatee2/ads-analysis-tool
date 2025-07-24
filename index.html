@@ -412,11 +412,17 @@
                     if (values.length >= Math.max(...Object.values(columnMap)) + 1) {
                         // Debug: Log raw values for first few rows
                         if (i <= 3) {
+                            const cleanedSpend = values[columnMap.spend]?.replace(/[£$€¥₹]/g, '').replace(',', '');
+                            const cleanedAvgCpc = values[columnMap.avgCpc]?.replace(/[£$€¥₹]/g, '').replace(',', '');
                             console.log(`Row ${i} raw values:`, {
                                 rawAvgCpc: values[columnMap.avgCpc],
                                 rawSpend: values[columnMap.spend],
-                                cleanedAvgCpc: values[columnMap.avgCpc]?.replace(/[£$€¥₹]/g, '').replace(',', ''),
-                                cleanedSpend: values[columnMap.spend]?.replace(/[£$€¥₹]/g, '').replace(',', '')
+                                cleanedAvgCpc: cleanedAvgCpc,
+                                cleanedSpend: cleanedSpend,
+                                parsedSpend: parseFloat(cleanedSpend),
+                                parsedAvgCpc: parseFloat(cleanedAvgCpc),
+                                isNaN_spend: isNaN(parseFloat(cleanedSpend)),
+                                isNaN_avgCpc: isNaN(parseFloat(cleanedAvgCpc))
                             });
                         }
 
