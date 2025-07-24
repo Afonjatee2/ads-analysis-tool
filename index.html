@@ -418,12 +418,12 @@
                             impressions: parseInt(values[columnMap.impressions]) || 0,
                             ctr: parseFloat(values[columnMap.ctr]?.replace('%', '')) || 0,
                             avgCpc: (() => {
-                                const cleaned = values[columnMap.avgCpc]?.replace(/[£$€¥₹]/g, '').replace(',', '').trim();
+                                const cleaned = values[columnMap.avgCpc]?.replace(/[£$€¥₹�]/g, '').replace(',', '').trim();
                                 const parsed = parseFloat(cleaned);
                                 return isNaN(parsed) ? 0 : parsed;
                             })(),
                             spend: (() => {
-                                const cleaned = values[columnMap.spend]?.replace(/[£$€¥₹]/g, '').replace(',', '').trim();
+                                const cleaned = values[columnMap.spend]?.replace(/[£$€¥₹�]/g, '').replace(',', '').trim();
                                 const parsed = parseFloat(cleaned);
                                 return isNaN(parsed) ? 0 : parsed;
                             })()
