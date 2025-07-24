@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,6 +14,7 @@
             background-color: #f8f9fa;
             line-height: 1.6;
         }
+
         .header {
             background: linear-gradient(135deg, #0078d4, #106ebe);
             color: white;
@@ -21,13 +23,15 @@
             margin-bottom: 25px;
             text-align: center;
         }
+
         .tool-section {
             background: white;
             padding: 25px;
             border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             margin-bottom: 25px;
         }
+
         .upload-area {
             border: 2px dashed #0078d4;
             padding: 25px;
@@ -36,41 +40,48 @@
             margin-bottom: 20px;
             background: #f8f9fd;
         }
+
         .config-panel {
             background: #e8f4fd;
             padding: 20px;
             border-radius: 8px;
             margin-bottom: 20px;
         }
+
         .weight-controls {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 15px;
             margin: 15px 0;
         }
+
         .weight-control {
             background: white;
             padding: 15px;
             border-radius: 5px;
             border: 1px solid #dee2e6;
         }
+
         .weight-control label {
             display: block;
             font-weight: 600;
             margin-bottom: 5px;
             color: #0078d4;
         }
+
         .weight-control input {
             width: 100%;
             padding: 8px;
             border: 1px solid #ced4da;
             border-radius: 4px;
         }
+
         .weight-display {
             font-size: 14px;
             color: #6c757d;
             margin-top: 5px;
         }
+
         button {
             background: #0078d4;
             color: white;
@@ -81,19 +92,23 @@
             font-size: 16px;
             margin: 5px;
         }
+
         button:hover {
             background: #106ebe;
         }
+
         button:disabled {
             background: #6c757d;
             cursor: not-allowed;
         }
+
         .results-table {
             width: 100%;
             border-collapse: collapse;
             margin: 20px 0;
             font-size: 13px;
         }
+
         .results-table th {
             background: #0078d4;
             color: white;
@@ -103,15 +118,24 @@
             top: 0;
             z-index: 10;
         }
+
         .results-table td {
             padding: 10px 8px;
             border-bottom: 1px solid #dee2e6;
         }
+
         .results-table tr:nth-child(even) {
             background: #f8f9fa;
         }
-        .rank-retain { background-color: #d4edda !important; }
-        .rank-eliminate { background-color: #f8d7da !important; }
+
+        .rank-retain {
+            background-color: #d4edda !important;
+        }
+
+        .rank-eliminate {
+            background-color: #f8d7da !important;
+        }
+
         .score {
             font-weight: bold;
             padding: 4px 8px;
@@ -119,15 +143,27 @@
             color: white;
             text-align: center;
         }
-        .score-high { background: #28a745; }
-        .score-medium { background: #ffc107; color: #212529; }
-        .score-low { background: #dc3545; }
+
+        .score-high {
+            background: #28a745;
+        }
+
+        .score-medium {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .score-low {
+            background: #dc3545;
+        }
+
         .summary-cards {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 15px;
             margin: 20px 0;
         }
+
         .summary-card {
             background: white;
             border: 1px solid #dee2e6;
@@ -135,16 +171,19 @@
             padding: 20px;
             text-align: center;
         }
+
         .summary-value {
             font-size: 28px;
             font-weight: bold;
             color: #0078d4;
             margin-bottom: 5px;
         }
+
         .summary-label {
             font-size: 14px;
             color: #6c757d;
         }
+
         .export-section {
             background: #fff3cd;
             border: 1px solid #ffeaa7;
@@ -152,11 +191,13 @@
             padding: 20px;
             margin-top: 20px;
         }
+
         .loading {
             text-align: center;
             padding: 40px;
             color: #6c757d;
         }
+
         .error {
             background: #f8d7da;
             color: #721c24;
@@ -165,18 +206,21 @@
             padding: 15px;
             margin: 10px 0;
         }
+
         .table-container {
             max-height: 600px;
             overflow-y: auto;
             border: 1px solid #dee2e6;
             border-radius: 5px;
         }
+
         #fileInput {
             margin: 10px 0;
             padding: 8px;
         }
     </style>
 </head>
+
 <body>
     <div class="header">
         <h1>Microsoft Ads Composite Scoring & Analysis Tool</h1>
@@ -191,47 +235,47 @@
             <input type="file" id="fileInput" accept=".csv" />
             <button onclick="loadAndAnalyzeFile()" id="loadBtn">Load & Analyze Data</button>
         </div>
-        
+
         <div class="config-panel">
             <h3>⚙️ Scoring Configuration</h3>
             <p>Adjust the weighting for each performance metric (must total 100%)</p>
-            
+
             <div class="weight-controls">
                 <div class="weight-control">
                     <label for="ctrWeight">Click-Through Rate (CTR)</label>
                     <input type="number" id="ctrWeight" value="25" min="0" max="100" onchange="updateWeights()">
                     <div class="weight-display">Primary engagement indicator</div>
                 </div>
-                
+
                 <div class="weight-control">
                     <label for="clicksWeight">Total Clicks Volume</label>
                     <input type="number" id="clicksWeight" value="20" min="0" max="100" onchange="updateWeights()">
                     <div class="weight-display">Traffic volume contribution</div>
                 </div>
-                
+
                 <div class="weight-control">
                     <label for="qualityWeight">Quality Score</label>
                     <input type="number" id="qualityWeight" value="20" min="0" max="100" onchange="updateWeights()">
                     <div class="weight-display">Platform relevance assessment</div>
                 </div>
-                
+
                 <div class="weight-control">
                     <label for="costWeight">Cost Efficiency</label>
                     <input type="number" id="costWeight" value="20" min="0" max="100" onchange="updateWeights()">
                     <div class="weight-display">Cost per click optimization</div>
                 </div>
-                
+
                 <div class="weight-control">
                     <label for="impressionsWeight">Impression Volume</label>
                     <input type="number" id="impressionsWeight" value="15" min="0" max="100" onchange="updateWeights()">
                     <div class="weight-display">Reach and visibility</div>
                 </div>
             </div>
-            
+
             <div id="weightTotal" style="font-weight: bold; text-align: center; margin-top: 15px;">
                 Total Weight: 100%
             </div>
-            
+
             <div style="margin-top: 15px;">
                 <label for="retentionPercent">Retention Percentage:</label>
                 <select id="retentionPercent" onchange="updateAnalysis()">
@@ -272,7 +316,8 @@
 
     <div id="reportOutput" style="display: none;" class="tool-section">
         <h2>📄 Generated Report</h2>
-        <textarea id="reportText" style="width: 100%; height: 400px; font-family: monospace; font-size: 12px;"></textarea>
+        <textarea id="reportText"
+            style="width: 100%; height: 400px; font-family: monospace; font-size: 12px;"></textarea>
         <button onclick="copyReport()">Copy Report to Clipboard</button>
     </div>
 
@@ -286,13 +331,13 @@
             const quality = parseInt(document.getElementById('qualityWeight').value) || 0;
             const cost = parseInt(document.getElementById('costWeight').value) || 0;
             const impressions = parseInt(document.getElementById('impressionsWeight').value) || 0;
-            
+
             const total = ctr + clicks + quality + cost + impressions;
-            
+
             const totalElement = document.getElementById('weightTotal');
             totalElement.textContent = `Total Weight: ${total}%`;
             totalElement.style.color = total === 100 ? '#28a745' : '#dc3545';
-            
+
             if (currentData.length > 0) {
                 analyzeData();
             }
@@ -301,7 +346,7 @@
         async function loadAndAnalyzeFile() {
             const fileInput = document.getElementById('fileInput');
             const file = fileInput.files[0];
-            
+
             if (!file) {
                 alert('Please select a CSV file first.');
                 return;
@@ -310,10 +355,10 @@
             try {
                 document.getElementById('loadBtn').disabled = true;
                 document.getElementById('loadBtn').textContent = 'Loading...';
-                
+
                 const text = await file.text();
                 parseCSVData(text);
-                
+
                 document.getElementById('loadBtn').disabled = false;
                 document.getElementById('loadBtn').textContent = 'Load & Analyze Data';
             } catch (error) {
@@ -327,14 +372,14 @@
         function parseCSVData(csvText) {
             try {
                 const lines = csvText.split('\n').filter(line => line.trim());
-                
+
                 if (lines.length < 2) {
                     throw new Error('CSV file must have at least a header row and one data row');
                 }
 
                 // Parse header
                 const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, '').toLowerCase());
-                
+
                 // Find required columns
                 const columnMap = {
                     adGroup: findColumn(headers, ['ad group', 'adgroup', 'ad_group']),
@@ -359,7 +404,7 @@
                 currentData = [];
                 for (let i = 1; i < lines.length; i++) {
                     const values = parseCSVLine(lines[i]);
-                    
+
                     if (values.length >= Math.max(...Object.values(columnMap)) + 1) {
                         const row = {
                             adGroup: values[columnMap.adGroup] || '',
@@ -403,7 +448,7 @@
             const result = [];
             let current = '';
             let inQuotes = false;
-            
+
             for (let i = 0; i < line.length; i++) {
                 const char = line[i];
                 if (char === '"') {
@@ -440,14 +485,14 @@
             // Calculate composite scores
             analyzedData = currentData.map(row => {
                 const costPerClick = row.spend > 0 ? row.spend / row.clicks : row.avgCpc;
-                
+
                 // Normalize metrics (0-1 scale)
                 const normalizedCtr = Math.min(row.ctr / Math.max(maxCtr, 10), 1);
                 const normalizedClicks = row.clicks / maxClicks;
                 const normalizedQualScore = row.qualScore / 10;
                 const normalizedCostEff = Math.max(0, 1 - (costPerClick / 2)); // £2 CPC = 0 score
                 const normalizedImpressions = row.impressions / maxImpressions;
-                
+
                 // Calculate weighted composite score
                 const compositeScore = (
                     (normalizedCtr * weights.ctr) +
@@ -456,7 +501,7 @@
                     (normalizedCostEff * weights.cost) +
                     (normalizedImpressions * weights.impressions)
                 ) * 100;
-                
+
                 return {
                     ...row,
                     costPerClick: costPerClick,
@@ -503,7 +548,7 @@
             const retentionPercent = parseInt(document.getElementById('retentionPercent').value);
             const retainCount = Math.ceil(analyzedData.length * (retentionPercent / 100));
             const topPerformers = analyzedData.slice(0, retainCount);
-            
+
             const topClicks = topPerformers.reduce((sum, row) => sum + row.clicks, 0);
             const topSpend = topPerformers.reduce((sum, row) => sum + row.spend, 0);
 
@@ -533,11 +578,11 @@
                     <div class="summary-label">Recommended to Retain</div>
                 </div>
                 <div class="summary-card">
-                    <div class="summary-value">${((topClicks/totalClicks)*100).toFixed(1)}%</div>
+                    <div class="summary-value">${((topClicks / totalClicks) * 100).toFixed(1)}%</div>
                     <div class="summary-label">Top ${retentionPercent}% Click Share</div>
                 </div>
                 <div class="summary-card">
-                    <div class="summary-value">${((topSpend/totalSpend)*100).toFixed(1)}%</div>
+                    <div class="summary-value">${((topSpend / totalSpend) * 100).toFixed(1)}%</div>
                     <div class="summary-label">Top ${retentionPercent}% Spend Share</div>
                 </div>
             `;
@@ -559,8 +604,8 @@
                 <div style="background: #d4edda; padding: 15px; border-radius: 8px; border-left: 5px solid #28a745; margin-bottom: 20px;">
                     <h3>Top ${retentionPercent}% Performance Impact</h3>
                     <ul>
-                        <li><strong>Combined Clicks:</strong> ${topClicks.toLocaleString()} (${((topClicks/analyzedData.reduce((sum, row) => sum + row.clicks, 0))*100).toFixed(1)}% of total)</li>
-                        <li><strong>Combined Spend:</strong> £${topSpend.toLocaleString()} (${((topSpend/analyzedData.reduce((sum, row) => sum + row.spend, 0))*100).toFixed(1)}% of total)</li>
+                        <li><strong>Combined Clicks:</strong> ${topClicks.toLocaleString()} (${((topClicks / analyzedData.reduce((sum, row) => sum + row.clicks, 0)) * 100).toFixed(1)}% of total)</li>
+                        <li><strong>Combined Spend:</strong> £${topSpend.toLocaleString()} (${((topSpend / analyzedData.reduce((sum, row) => sum + row.spend, 0)) * 100).toFixed(1)}% of total)</li>
                         <li><strong>Average CTR:</strong> ${topAvgCtr.toFixed(2)}%</li>
                         <li><strong>Average Quality Score:</strong> ${topAvgQual.toFixed(1)}/10</li>
                     </ul>
@@ -696,7 +741,7 @@
             const retentionPercent = parseInt(document.getElementById('retentionPercent').value);
             const retainCount = Math.ceil(analyzedData.length * (retentionPercent / 100));
             const topPerformers = analyzedData.slice(0, retainCount);
-            
+
             const totalClicks = analyzedData.reduce((sum, row) => sum + row.clicks, 0);
             const totalSpend = analyzedData.reduce((sum, row) => sum + row.spend, 0);
             const topClicks = topPerformers.reduce((sum, row) => sum + row.clicks, 0);
@@ -710,7 +755,7 @@ EXECUTIVE SUMMARY
 ================
 Total Ad Groups Analyzed: ${analyzedData.length}
 Recommended for Retention: ${retainCount} (${retentionPercent}%)
-Recommended for Elimination: ${analyzedData.length - retainCount} (${100-retentionPercent}%)
+Recommended for Elimination: ${analyzedData.length - retainCount} (${100 - retentionPercent}%)
 
 PERFORMANCE METRICS
 ==================
@@ -721,24 +766,24 @@ Average Quality Score: ${(analyzedData.reduce((sum, row) => sum + row.qualScore,
 
 TOP ${retentionPercent}% PERFORMANCE IMPACT
 ========================================
-Clicks Generated: ${topClicks.toLocaleString()} (${((topClicks/totalClicks)*100).toFixed(1)}% of total)
-Spend Consumed: £${topSpend.toLocaleString()} (${((topSpend/totalSpend)*100).toFixed(1)}% of total)
+Clicks Generated: ${topClicks.toLocaleString()} (${((topClicks / totalClicks) * 100).toFixed(1)}% of total)
+Spend Consumed: £${topSpend.toLocaleString()} (${((topSpend / totalSpend) * 100).toFixed(1)}% of total)
 Average CTR: ${(topPerformers.reduce((sum, row) => sum + row.ctr, 0) / topPerformers.length).toFixed(2)}%
 Average Quality Score: ${(topPerformers.reduce((sum, row) => sum + row.qualScore, 0) / topPerformers.length).toFixed(1)}/10
 
 RECOMMENDED AD GROUPS FOR RETENTION
 ==================================
-${topPerformers.map((row, index) => 
-`${index + 1}. ${row.adGroup}
+${topPerformers.map((row, index) =>
+                `${index + 1}. ${row.adGroup}
    Score: ${row.compositeScore.toFixed(1)} | Clicks: ${row.clicks.toLocaleString()} | CTR: ${row.ctr.toFixed(2)}% | Quality: ${row.qualScore}/10 | CPC: £${row.costPerClick.toFixed(2)}`
-).join('\n\n')}
+            ).join('\n\n')}
 
 STRATEGIC RECOMMENDATIONS
 ========================
 1. IMMEDIATE BUDGET REALLOCATION
    - Concentrate 100% of Microsoft Ads budget on top ${retentionPercent}% performers
-   - Eliminate remaining ${100-retentionPercent}% of ad groups consuming ${(((totalSpend-topSpend)/totalSpend)*100).toFixed(1)}% of budget
-   - Expected efficiency gain: ${(((topClicks/topSpend)/(totalClicks/totalSpend)-1)*100).toFixed(1)}% improvement in clicks per pound
+   - Eliminate remaining ${100 - retentionPercent}% of ad groups consuming ${(((totalSpend - topSpend) / totalSpend) * 100).toFixed(1)}% of budget
+   - Expected efficiency gain: ${(((topClicks / topSpend) / (totalClicks / totalSpend) - 1) * 100).toFixed(1)}% improvement in clicks per pound
 
 2. PERFORMANCE OPTIMIZATION
    - Focus keyword expansion on highest composite score ad groups
@@ -746,9 +791,9 @@ STRATEGIC RECOMMENDATIONS
    - Deploy advanced targeting for top performers only
 
 3. EXPECTED OUTCOMES
-   - Maintain ${((topClicks/totalClicks)*100).toFixed(1)}% of traffic volume with ${retentionPercent}% of ad groups
+   - Maintain ${((topClicks / totalClicks) * 100).toFixed(1)}% of traffic volume with ${retentionPercent}% of ad groups
    - Improve overall campaign efficiency through performance concentration
-   - Simplify campaign management by ${100-retentionPercent}% reduction in active ad groups
+   - Simplify campaign management by ${100 - retentionPercent}% reduction in active ad groups
 
 COMPOSITE SCORING METHODOLOGY
 ============================
@@ -758,14 +803,54 @@ Quality Score: ${document.getElementById('qualityWeight').value}% weighting
 Cost Efficiency: ${document.getElementById('costWeight').value}% weighting
 Impression Volume: ${document.getElementById('impressionsWeight').value}% weighting
 
-BOTTOM ${100-retentionPercent}% ELIMINATION RATIONALE
+BOTTOM ${100 - retentionPercent}% ELIMINATION RATIONALE
 ${'='.repeat(45)}
 The bottom ${analyzedData.length - retainCount} ad groups demonstrate:
 - Below-average composite performance scores
 - Poor cost efficiency relative to top performers
-- Limited traffic contribution (${(100-((topClicks/totalClicks)*100)).toFixed(1)}% of clicks for ${(100-((topSpend/totalSpend)*100)).toFixed(1)}% of spend)
+- Limited traffic contribution (${(100 - ((topClicks / totalClicks) * 100)).toFixed(1)}% of clicks for ${(100 - ((topSpend / totalSpend) * 100)).toFixed(1)}% of spend)
 - Suboptimal engagement metrics affecting account quality
 
 END OF REPORT
 ============
             `;
+            document.getElementById('reportOutput').style.display = 'block';
+            document.getElementById('reportText').value = report;
+        }
+
+        function copyReport() {
+            const reportText = document.getElementById('reportText');
+            reportText.select();
+            document.execCommand('copy');
+            alert('Report copied to clipboard!');
+        }
+
+        function copyTopPerformers() {
+            const retentionPercent = parseInt(document.getElementById('retentionPercent').value);
+            const retainCount = Math.ceil(analyzedData.length * (retentionPercent / 100));
+            const topPerformers = analyzedData.slice(0, retainCount);
+
+            const list = topPerformers.map(row => row.adGroup).join('\n');
+
+            navigator.clipboard.writeText(list).then(() => {
+                alert('Top performers list copied to clipboard!');
+            }).catch(() => {
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = list;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert('Top performers list copied to clipboard!');
+            });
+        }
+
+        // Initialize weights display on page load
+        document.addEventListener('DOMContentLoaded', function () {
+            updateWeights();
+        });
+    </script>
+</body>
+
+</html>
