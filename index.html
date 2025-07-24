@@ -388,9 +388,13 @@
                     clicks: findColumn(headers, ['clicks']),
                     impressions: findColumn(headers, ['impr.', 'impressions', 'impr']),
                     ctr: findColumn(headers, ['ctr']),
-                    avgCpc: findColumn(headers, ['avg. cpc', 'avg cpc', 'cpc']),
+                    avgCpc: findColumn(headers, ['avg. cpc', 'avg cpc', 'avgcpc', 'cpc']),
                     spend: findColumn(headers, ['spend', 'cost'])
                 };
+
+                // Debug: Log column mapping results
+                console.log('Headers found:', headers);
+                console.log('Column mapping:', columnMap);
 
                 // Validate required columns
                 const requiredColumns = ['adGroup', 'clicks', 'impressions', 'ctr'];
