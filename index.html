@@ -481,6 +481,14 @@
         function analyzeData() {
             if (currentData.length === 0) return;
 
+            // Debug: Check first few rows of currentData
+            console.log('First 3 currentData rows:', currentData.slice(0, 3).map(row => ({
+                adGroup: row.adGroup,
+                spend: row.spend,
+                avgCpc: row.avgCpc,
+                clicks: row.clicks
+            })));
+
             // Get current weights
             const weights = {
                 ctr: parseInt(document.getElementById('ctrWeight').value) / 100,
@@ -560,10 +568,10 @@
                 avgCpc: row.avgCpc,
                 clicks: row.clicks
             })));
-            
+
             const totalClicks = analyzedData.reduce((sum, row) => sum + row.clicks, 0);
             const totalSpend = analyzedData.reduce((sum, row) => sum + row.spend, 0);
-            
+
             console.log('Total spend calculation:', totalSpend);
             const totalImpressions = analyzedData.reduce((sum, row) => sum + row.impressions, 0);
             const avgCtr = analyzedData.reduce((sum, row) => sum + row.ctr, 0) / analyzedData.length;
