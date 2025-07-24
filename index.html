@@ -553,8 +553,18 @@
         }
 
         function displaySummaryCards() {
+            // Debug: Check first few rows of analyzedData
+            console.log('First 3 analyzed data rows:', analyzedData.slice(0, 3).map(row => ({
+                adGroup: row.adGroup,
+                spend: row.spend,
+                avgCpc: row.avgCpc,
+                clicks: row.clicks
+            })));
+            
             const totalClicks = analyzedData.reduce((sum, row) => sum + row.clicks, 0);
             const totalSpend = analyzedData.reduce((sum, row) => sum + row.spend, 0);
+            
+            console.log('Total spend calculation:', totalSpend);
             const totalImpressions = analyzedData.reduce((sum, row) => sum + row.impressions, 0);
             const avgCtr = analyzedData.reduce((sum, row) => sum + row.ctr, 0) / analyzedData.length;
             const avgQualScore = analyzedData.reduce((sum, row) => sum + row.qualScore, 0) / analyzedData.length;
