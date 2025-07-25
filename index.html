@@ -476,94 +476,118 @@
             return result;
         }
 
-        function analyzeData() {
-            if (currentData.length === 0) return;
+    function analyzeData() {
+        if (currentData.length === 0) return;
 
+        // Get current weights
+        const weights = {
+            ctr: parseInt(document.getElementById('ctrWeight').value) / 100,
+            clicks: parseInt(document.getElementById('clicksWeight').value) / 100,
+            quality: parseInt(document.getElementById('qualityWeight').value) / 100,
+            cost: parseInt(document.getElementById('costWeight').value) / 100,
+            impressions: parseInt(document.getElementById('impressionsWeight').value) / 100
+        };
 
+        // Calculate min and max for each metric from the actual dataset - NO CAPS!
+        const metrics = {
+            clicks: {
+                min: Math.min(...currentData.map(d => d.clicks)),
+                max: Math.max(...currentData.map(d => d.clicks))
+            },
+            ctr: {
+                min: Math.min(...currentData.map(d => d.ctr)),
+                max: Math.max(...currentData.map(d => d.ctr))
+            },
+            impressions: {
+                min: Math.min(...currentData.map(d => d.impressions)),
+                max: Math.max(...currentData.map(d => d.impressions))
+            },
+            qualScore: {
+                min: Math.min(...currentData.map(d => d.qualScore)),
+                max: Math.max(...currentData.map(d => d.qualScore))
+            }
+        };
 
-            // Get current weights
-            const weights = {
-                ctr: parseInt(document.getElementById('ctrWeight').value) / 100,
-                clicks: parseInt(document.getElementById('clicksWeight').value) / 100,
-                quality: parseInt(document.getElementById('qualityWeight').value) / 100,
-                cost: parseInt(document.getElementById('costWeight').value) / 100,
-                impressions: parseInt(document.getElementById('impressionsWeight').value) / 100
+        // Calculate cost per click for all rows first
+        const costPerClickValues = currentData.map(row =>
+            row.spend > 0 ? row.spend / row.clicks : row.avgCpc
+        );
+        
+        metrics.costPerClick = {
+            min: Math.min(...costPerClickValues),
+            max: Math.max(...costPerClickValues)
+        };
+
+        console.log('Dataset Metrics Ranges:', metrics);
+
+        // Calculate composite scores using proper min-max normalization
+        analyzedData = currentData.map((row, index) => {
+            const costPerClick = costPerClickValues[index];
+
+            // Min-Max Normalization (0-1 scale) using actual dataset ranges
+            const normalizedCtr = metrics.ctr.max > metrics.ctr.min ?
+                (row.ctr - metrics.ctr.min) / (metrics.ctr.max - metrics.ctr.min) : 0;
+            
+            const normalizedClicks = metrics.clicks.max > metrics.clicks.min ?
+                (row.clicks - metrics.clicks.min) / (metrics.clicks.max - metrics.clicks.min) : 0;
+            
+            const normalizedQualScore = metrics.qualScore.max > metrics.qualScore.min ?
+                (row.qualScore - metrics.qualScore.min) / (metrics.qualScore.max - metrics.qualScore.min) : 0;
+            
+            // Cost efficiency: inverse normalization (lower cost = better performance)
+            const normalizedCostEff = metrics.costPerClick.max > metrics.costPerClick.min ?
+                1 - ((costPerClick - metrics.costPerClick.min) / (metrics.costPerClick.max - metrics.costPerClick.min)) : 0;
+            
+            const normalizedImpressions = metrics.impressions.max > metrics.impressions.min ?
+                (row.impressions - metrics.impressions.min) / (metrics.impressions.max - metrics.impressions.min) : 0;
+
+            // Calculate weighted composite score
+            const compositeScore = (
+                (normalizedCtr * weights.ctr) +
+                (normalizedClicks * weights.clicks) +
+                (normalizedQualScore * weights.quality) +
+                (normalizedCostEff * weights.cost) +
+                (normalizedImpressions * weights.impressions)
+            ) * 100;
+
+            return {
+                ...row,
+                costPerClick: costPerClick,
+                compositeScore: compositeScore,
+                // Store normalized values for debugging
+                normalized: {
+                    ctr: normalizedCtr,
+                    clicks: normalizedClicks,
+                    quality: normalizedQualScore,
+                    costEff: normalizedCostEff,
+                    impressions: normalizedImpressions
+                }
             };
+        });
 
-            // Calculate dynamic min/max for normalization
-            const minMax = currentData.reduce((acc, row) => {
-                const cpc = row.spend > 0 ? row.spend / row.clicks : row.avgCpc;
-                acc.minCtr = Math.min(acc.minCtr, row.ctr);
-                acc.maxCtr = Math.max(acc.maxCtr, row.ctr);
-                acc.minClicks = Math.min(acc.minClicks, row.clicks);
-                acc.maxClicks = Math.max(acc.maxClicks, row.clicks);
-                acc.minImpressions = Math.min(acc.minImpressions, row.impressions);
-                acc.maxImpressions = Math.max(acc.maxImpressions, row.impressions);
-                acc.minQualScore = Math.min(acc.minQualScore, row.qualScore);
-                acc.maxQualScore = Math.max(acc.maxQualScore, row.qualScore);
-                acc.minCpc = Math.min(acc.minCpc, cpc);
-                acc.maxCpc = Math.max(acc.maxCpc, cpc);
-                return acc;
-            }, {
-                minCtr: Infinity, maxCtr: -Infinity,
-                minClicks: Infinity, maxClicks: -Infinity,
-                minImpressions: Infinity, maxImpressions: -Infinity,
-                minQualScore: Infinity, maxQualScore: -Infinity,
-                minCpc: Infinity, maxCpc: -Infinity
-            });
+        // Sort by composite score
+        analyzedData.sort((a, b) => b.compositeScore - a.compositeScore);
 
-            // Calculate composite scores
-            analyzedData = currentData.map(row => {
-                const costPerClick = row.spend > 0 ? row.spend / row.clicks : row.avgCpc;
+        // Add rankings and recommendations
+        const retentionPercent = parseInt(document.getElementById('retentionPercent').value);
+        const retainCount = Math.ceil(analyzedData.length * (retentionPercent / 100));
 
-                // Normalize metrics (0-1 scale) using dynamic min/max
-                const rangeCtr = minMax.maxCtr - minMax.minCtr;
-                const normalizedCtr = rangeCtr > 0 ? (row.ctr - minMax.minCtr) / rangeCtr : 1;
+        analyzedData.forEach((row, index) => {
+            row.rank = index + 1;
+            row.recommendation = index < retainCount ? 'RETAIN' : 'ELIMINATE';
+        });
 
-                const rangeClicks = minMax.maxClicks - minMax.minClicks;
-                const normalizedClicks = rangeClicks > 0 ? (row.clicks - minMax.minClicks) / rangeClicks : 1;
+        // Debug: Log first few results
+        console.log('Top 5 Ad Groups Analysis:');
+        analyzedData.slice(0, 5).forEach(row => {
+            console.log(`${row.rank}. ${row.adGroup}`);
+            console.log(`  Composite Score: ${row.compositeScore.toFixed(1)}`);
+            console.log(`  Normalized: CTR=${row.normalized.ctr.toFixed(3)}, Clicks=${row.normalized.clicks.toFixed(3)}, Quality=${row.normalized.quality.toFixed(3)}, Cost=${row.normalized.costEff.toFixed(3)}, Impr=${row.normalized.impressions.toFixed(3)}`);
+            console.log('');
+        });
 
-                const rangeQualScore = minMax.maxQualScore - minMax.minQualScore;
-                const normalizedQualScore = rangeQualScore > 0 ? (row.qualScore - minMax.minQualScore) / rangeQualScore : 1;
-
-                const rangeImpressions = minMax.maxImpressions - minMax.minImpressions;
-                const normalizedImpressions = rangeImpressions > 0 ? (row.impressions - minMax.minImpressions) / rangeImpressions : 1;
-
-                // Inverse normalization for CPC (lower is better)
-                const rangeCpc = minMax.maxCpc - minMax.minCpc;
-                const normalizedCostEff = rangeCpc > 0 ? 1 - ((costPerClick - minMax.minCpc) / rangeCpc) : 1;
-
-
-                // Calculate weighted composite score
-                const compositeScore = (
-                    (normalizedCtr * weights.ctr) +
-                    (normalizedClicks * weights.clicks) +
-                    (normalizedQualScore * weights.quality) +
-                    (normalizedCostEff * weights.cost) +
-                    (normalizedImpressions * weights.impressions)
-                ) * 100;
-
-                return {
-                    ...row,
-                    costPerClick: costPerClick,
-                    compositeScore: compositeScore
-                };
-            });
-
-            // Sort by composite score
-            analyzedData.sort((a, b) => b.compositeScore - a.compositeScore);
-
-            // Add rankings and recommendations
-            const retentionPercent = parseInt(document.getElementById('retentionPercent').value);
-            const retainCount = Math.ceil(analyzedData.length * (retentionPercent / 100));
-
-            analyzedData.forEach((row, index) => {
-                row.rank = index + 1;
-                row.recommendation = index < retainCount ? 'RETAIN' : 'ELIMINATE';
-            });
-
-            displayResults();
-        }
+        displayResults();
+    }
 
         function displayResults() {
             // Show results section
