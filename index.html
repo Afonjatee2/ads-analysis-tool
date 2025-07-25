@@ -413,7 +413,10 @@
                         const row = {
                             adGroup: values[columnMap.adGroup] || '',
                             campaign: values[columnMap.campaign] || '',
-                            qualScore: parseFloat(values[columnMap.qualScore]) || 7, // default if missing
+                            qualScore: (() => {
+                                const rawQS = parseFloat(values[columnMap.qualScore]);
+                                return isNaN(rawQS) ? 7 : rawQS;
+                            })(),
                             clicks: parseInt(values[columnMap.clicks]) || 0,
                             impressions: parseInt(values[columnMap.impressions]) || 0,
                             ctr: parseFloat(values[columnMap.ctr]?.replace('%', '')) || 0,
