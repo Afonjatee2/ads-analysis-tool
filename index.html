@@ -490,22 +490,49 @@
                 impressions: parseInt(document.getElementById('impressionsWeight').value) / 100
             };
 
-            // Calculate normalization factors
-            const maxClicks = Math.max(...currentData.map(d => d.clicks));
-            const maxImpressions = Math.max(...currentData.map(d => d.impressions));
-            const maxCtr = Math.max(...currentData.map(d => d.ctr));
-            const maxSpend = Math.max(...currentData.map(d => d.spend));
+            // Calculate dynamic min/max for normalization
+            const minMax = currentData.reduce((acc, row) => {
+                const cpc = row.spend > 0 ? row.spend / row.clicks : row.avgCpc;
+                acc.minCtr = Math.min(acc.minCtr, row.ctr);
+                acc.maxCtr = Math.max(acc.maxCtr, row.ctr);
+                acc.minClicks = Math.min(acc.minClicks, row.clicks);
+                acc.maxClicks = Math.max(acc.maxClicks, row.clicks);
+                acc.minImpressions = Math.min(acc.minImpressions, row.impressions);
+                acc.maxImpressions = Math.max(acc.maxImpressions, row.impressions);
+                acc.minQualScore = Math.min(acc.minQualScore, row.qualScore);
+                acc.maxQualScore = Math.max(acc.maxQualScore, row.qualScore);
+                acc.minCpc = Math.min(acc.minCpc, cpc);
+                acc.maxCpc = Math.max(acc.maxCpc, cpc);
+                return acc;
+            }, {
+                minCtr: Infinity, maxCtr: -Infinity,
+                minClicks: Infinity, maxClicks: -Infinity,
+                minImpressions: Infinity, maxImpressions: -Infinity,
+                minQualScore: Infinity, maxQualScore: -Infinity,
+                minCpc: Infinity, maxCpc: -Infinity
+            });
 
             // Calculate composite scores
             analyzedData = currentData.map(row => {
                 const costPerClick = row.spend > 0 ? row.spend / row.clicks : row.avgCpc;
 
-                // Normalize metrics (0-1 scale)
-                const normalizedCtr = Math.min(row.ctr / Math.max(maxCtr, 10), 1);
-                const normalizedClicks = row.clicks / maxClicks;
-                const normalizedQualScore = row.qualScore / 10;
-                const normalizedCostEff = Math.max(0, 1 - (costPerClick / 2)); // £2 CPC = 0 score
-                const normalizedImpressions = row.impressions / maxImpressions;
+                // Normalize metrics (0-1 scale) using dynamic min/max
+                const rangeCtr = minMax.maxCtr - minMax.minCtr;
+                const normalizedCtr = rangeCtr > 0 ? (row.ctr - minMax.minCtr) / rangeCtr : 1;
+
+                const rangeClicks = minMax.maxClicks - minMax.minClicks;
+                const normalizedClicks = rangeClicks > 0 ? (row.clicks - minMax.minClicks) / rangeClicks : 1;
+
+                const rangeQualScore = minMax.maxQualScore - minMax.minQualScore;
+                const normalizedQualScore = rangeQualScore > 0 ? (row.qualScore - minMax.minQualScore) / rangeQualScore : 1;
+
+                const rangeImpressions = minMax.maxImpressions - minMax.minImpressions;
+                const normalizedImpressions = rangeImpressions > 0 ? (row.impressions - minMax.minImpressions) / rangeImpressions : 1;
+
+                // Inverse normalization for CPC (lower is better)
+                const rangeCpc = minMax.maxCpc - minMax.minCpc;
+                const normalizedCostEff = rangeCpc > 0 ? 1 - ((costPerClick - minMax.minCpc) / rangeCpc) : 1;
+
 
                 // Calculate weighted composite score
                 const compositeScore = (
